@@ -1,5 +1,6 @@
 package com.vsa.config;
 
+import com.vsa.repository.ItemRepository;
 import com.vsa.repository.ProductRepository;
 import com.vsa.suggestion.CategoryBasedRecommendation;
 import com.vsa.suggestion.FrequencyBasedRecommendation;
@@ -19,9 +20,10 @@ public class SuggestionConfig {
         return new CategoryBasedRecommendation(repo);
     }
 
+    // Frequency strategy now needs ItemRepository for frequency counts
     @Bean
-    public RecommendationStrategy freqStrategy(ProductRepository repo) {
-        return new FrequencyBasedRecommendation(repo);
+    public RecommendationStrategy freqStrategy(ProductRepository repo, ItemRepository itemRepo) {
+        return new FrequencyBasedRecommendation(repo, itemRepo);
     }
 
     @Bean

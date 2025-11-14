@@ -17,6 +17,10 @@ public class ParserEngine {
         String intent = intentDetector.detect(text);
         Map<String, String> entities = entityExtractor.extract(text);
 
-        return new ParsedIntentResponse(intent, entities);
+        return ParsedIntentResponse.builder()
+                .intent(intent)
+                .entities(entities)
+                .rawText(text)
+                .build();
     }
 }

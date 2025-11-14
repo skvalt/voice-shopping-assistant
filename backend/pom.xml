@@ -102,6 +102,21 @@
         <scope>test</scope>
     </dependency>
 
+    <!-- Apache HttpClient (Java 11+ has HttpClient, but you can use this for JSON) -->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.15.2</version>
+    </dependency>
+
+    <!-- Apache Commons Text for fuzzy distance -->
+    <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.10.0</version>
+    </dependency>
+
+
 	</dependencies>
 
 

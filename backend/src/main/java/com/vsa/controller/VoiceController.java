@@ -24,12 +24,17 @@ public class VoiceController {
     }
 
     /**
-     * Endpoint receives recognized text (from frontend speech recognition)
+     * Endpoint receives recognized text (already translated to English by frontend)
      * and returns parsed intent + possible action preview.
      */
     @PostMapping("/parse")
     public ResponseEntity<ParsedIntentResponse> parseVoice(@RequestBody String text) {
-        var parsed = nlpService.parse(text);
+
+        // Expecting ONLY English text now (frontend handles translation)
+        String cleanText = text == null ? "" : text.trim();
+        System.out.println("VOICE INPUT (ENGLISH EXPECTED): " + cleanText);
+
+        var parsed = nlpService.parse(cleanText);
         return ResponseEntity.ok(parsed);
     }
 
@@ -38,8 +43,6 @@ public class VoiceController {
      */
     @PostMapping("/apply")
     public ResponseEntity<?> applyIntent(@RequestBody UpdateItemRequest req) {
-        // Here you would call your ItemService to add/update list; stubbed as success
-        // For now return parsed suggestion for preview
         return ResponseEntity.ok().build();
     }
 }

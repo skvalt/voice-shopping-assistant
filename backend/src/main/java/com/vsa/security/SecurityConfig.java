@@ -44,12 +44,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // allow swagger and docs
                         .requestMatchers(
+                                "/api/auth/**", "/api/voice/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui/index.html"
                         ).permitAll()
                         // allow auth endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/nlp/**" ).permitAll()
                         // everything else needs auth
                         .anyRequest().authenticated()
                 );
