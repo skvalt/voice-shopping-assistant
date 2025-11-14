@@ -4,10 +4,10 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 @Document(collection = "products")
-@Data   // generates getters, setters, toString, equals, hashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -18,7 +18,9 @@ public class Product {
 
     private String name;
     private String category;
-    private BigDecimal price;
-    private String brand;
-    private Integer popularity;
+    private String brand;           // optional but helps NLP
+    private String unit;            // e.g. "1L", "500g"
+    private Double price;
+
+    private List<String> tags;      // synonyms, alternate names
 }
