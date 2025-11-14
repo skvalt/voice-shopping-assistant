@@ -1,0 +1,2 @@
+/* Forward to real app styles */
+@import "./src/styles/index.css";
