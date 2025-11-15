@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import Api from "../api/Api";
 import { useAuth } from "../hooks/useAuth";
+import { useList } from "../contexts/ListContext";
 
 export default function Recommendations() {
   const { user } = useAuth();
+  const { addOrUpdateItem } = useList();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
-  // -------------------------------
-  // FETCH SUGGESTIONS
-  // -------------------------------
   useEffect(() => {
     async function load() {
       try {
@@ -33,11 +32,7 @@ export default function Recommendations() {
       }
     }
     load();
-  }, []);
-
-  // -------------------------------
-  // UI RENDER
-  // -------------------------------
+  }, [user]);
 
   if (loading) {
     return (
@@ -74,7 +69,15 @@ export default function Recommendations() {
         {items.map((p) => (
           <div
             key={p.id}
-            className="min-w-[120px] bg-white rounded-xl shadow-sm p-3 border border-gray-100 active:scale-95 transition"
+            className="min-w-[120px] bg-white rounded-xl shadow-sm p-3 border border-gray-100 active:scale-95 transition cursor-pointer"
+            onClick={() =>
+              addOrUpdateItem({
+                name: p.name,
+                quantity: 1,
+                price: p.price,
+                category: p.category,
+              })
+            }
           >
             <div className="font-medium text-sm text-gray-800 truncate">
               {p.name}

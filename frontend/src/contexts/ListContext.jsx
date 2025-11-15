@@ -1,39 +1,46 @@
-import { createContext, useContext, useState } from "react";
-import Api from "../api/Api";
+import { createContext, useContext, useState, useMemo } from "react";
 
 const ListContext = createContext(null);
 
 export function ListProvider({ children }) {
   const [list, setList] = useState([]);
 
-  function addItem(item) {
+  // Add/update item from backend object or from search
+  function addOrUpdateItemFromBackend(item) {
+    if (!item || !item.name) return;
+
+    const qty = item.quantity ?? item.qty ?? item.qty ?? 1;
+    const price = item.price ?? 0;
+    const category = item.category ?? "";
+
     setList((prev) => {
-      const exists = prev.find(
+      const idx = prev.findIndex(
         (p) => p.name.toLowerCase() === item.name.toLowerCase()
       );
-      if (exists) {
-        return prev.map((p) =>
-          p.name.toLowerCase() === item.name.toLowerCase()
-            ? { ...p, qty: (p.qty || 1) + (item.qty || 1) }
-            : p
-        );
+
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = { ...copy[idx], qty, price, category, name: item.name };
+        return copy;
       }
-      return [item, ...prev];
+
+      return [{ name: item.name, qty, price, category }, ...prev];
     });
   }
 
-  function removeItem(name) {
+  function removeItemByBackendName(name) {
+    if (!name) return;
     setList((prev) =>
       prev.filter((p) => p.name.toLowerCase() !== name.toLowerCase())
     );
   }
 
   function updateQty(name, qty) {
+    if (!name) return;
     if (qty <= 0) {
-      removeItem(name);
+      removeItemByBackendName(name);
       return;
     }
-
     setList((prev) =>
       prev.map((p) =>
         p.name.toLowerCase() === name.toLowerCase() ? { ...p, qty } : p
@@ -41,26 +48,67 @@ export function ListProvider({ children }) {
     );
   }
 
+  // Unified backend handler
   function applyBackendAction(actionData) {
     if (!actionData) return;
 
-    const { action, name, qty, price } = actionData;
-
-    if (action === "add") {
-      addItem({ name, qty: qty || 1, price: price || 0 });
+    // Case: backend returns a full Item object
+    if (actionData.name && (actionData.quantity != null || actionData.qty != null)) {
+      addOrUpdateItemFromBackend({
+        name: actionData.name,
+        quantity: actionData.quantity ?? actionData.qty,
+        price: actionData.price,
+        category: actionData.category
+      });
+      return;
     }
-    if (action === "remove") removeItem(name);
-    if (action === "update_qty") updateQty(name, qty);
+
+    // Case: backend returns top-level removed item
+    if (actionData.removed && actionData.removed.name) {
+      removeItemByBackendName(actionData.removed.name);
+      return;
+    }
+
+    // Case: small action objects { action, name, qty, price }
+    const { action, name, qty, price } = actionData;
+    if (action === "add") {
+      addOrUpdateItemFromBackend({ name, quantity: qty ?? 1, price });
+    } else if (action === "remove") {
+      removeItemByBackendName(name);
+    } else if (action === "update_qty") {
+      updateQty(name, qty);
+    } else if (action.type === "clear") {
+      setList([]);
+    } else {
+      // fallback: if object has name only, add with qty 1
+      if (actionData.name) {
+        addOrUpdateItemFromBackend({ name: actionData.name, quantity: actionData.quantity ?? 1, price: actionData.price });
+      }
+    }
   }
+
+  // Public helpers
+  function addOrUpdateItem(item) {
+    addOrUpdateItemFromBackend(item);
+  }
+
+  function removeItem(name) {
+    removeItemByBackendName(name);
+  }
+
+  const total = useMemo(() => {
+    return list.reduce((s, it) => s + (it.price ?? 0) * (it.qty ?? it.quantity ?? 1), 0);
+  }, [list]);
 
   return (
     <ListContext.Provider
       value={{
         list,
-        addItem,
+        addOrUpdateItem,
         removeItem,
         updateQty,
         applyBackendAction,
+        total
       }}
     >
       {children}

@@ -12,10 +12,6 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/**
- * High-level service used by SuggestionController.
- * Delegates to repository + suggestion engine strategies.
- */
 @Service
 public class SuggestionService {
 
@@ -31,52 +27,58 @@ public class SuggestionService {
         this.suggestionEngine = suggestionEngine;
     }
 
-    /**
-     * Generic suggestions. If userId provided, use user's history frequency.
-     * If no userId, use frequency-based global suggestions.
-     */
     public List<Product> suggest(String userId) {
-        // if user has history, recommend top items from their history
+
         if (userId != null && !userId.isBlank()) {
-            Map<String, Long> counts = itemRepository.findAll().stream()
-                    .filter(i -> userId.equals(i.getUserId()))
-                    .collect(Collectors.groupingBy(i -> i.getName().toLowerCase().trim(), Collectors.counting()));
+            List<Item> items = itemRepository.findByUserId(userId);
+            if (items != null && !items.isEmpty()) {
 
-            if (!counts.isEmpty()) {
-                List<String> topNames = counts.entrySet().stream()
-                        .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
-                        .limit(10)
-                        .map(Map.Entry::getKey)
-                        .collect(Collectors.toList());
+                Map<String, Long> counts = items.stream()
+                        .filter(i -> i.getName() != null)
+                        .collect(Collectors.groupingBy(
+                                i -> i.getName().toLowerCase().trim(),
+                                Collectors.counting()
+                        ));
 
-                List<Product> results = new ArrayList<>();
-                for (String nm : topNames) {
-                    results.addAll(productRepository.findByNameRegex("(?i).*" + Pattern.quote(nm) + ".*"));
+                if (!counts.isEmpty()) {
+                    List<String> keywords = counts.entrySet().stream()
+                            .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))
+                            .limit(10)
+                            .map(Map.Entry::getKey)
+                            .collect(Collectors.toList());
+
+                    List<Product> rec = new ArrayList<>();
+                    for (String nm : keywords) {
+                        rec.addAll(
+                                productRepository.findByNameRegex("(?i).*" + Pattern.quote(nm) + ".*")
+                        );
+                    }
+
+                    LinkedHashMap<String, Product> dedup = new LinkedHashMap<>();
+                    for (Product p : rec) {
+                        if (p != null && p.getId() != null) dedup.put(p.getId(), p);
+                    }
+
+                    if (!dedup.isEmpty()) return new ArrayList<>(dedup.values());
                 }
-                // dedupe and return
-                LinkedHashMap<String, Product> dedup = new LinkedHashMap<>();
-                for (Product p : results) dedup.putIfAbsent(p.getId(), p);
-                return new ArrayList<>(dedup.values());
             }
         }
 
-        // fallback: use engine's frequency strategy (freqStrategy.recommend(null))
-        return suggestionEngine != null ? suggestionEngine.suggestSubstitutes(null) /* placeholder */ : Collections.emptyList();
+        List<Product> all = productRepository.findAll();
+        if (all == null || all.isEmpty()) return Collections.emptyList();
+
+        Collections.shuffle(all);
+        return all.stream().limit(10).collect(Collectors.toList());
     }
 
-    /**
-     * Category-specific suggestions
-     */
     public List<Product> suggestByCategory(String category) {
         if (category == null || category.isBlank()) return Collections.emptyList();
         return productRepository.findByCategoryIgnoreCase(category);
     }
 
-    /**
-     * Given a parsed intent, return substitutes using SuggestionEngine.
-     */
     public List<Product> suggestSubstitutes(ParsedIntentResponse parsed) {
         if (parsed == null) return Collections.emptyList();
+        if (suggestionEngine == null) return Collections.emptyList();
         return suggestionEngine.suggestSubstitutes(parsed);
     }
 }

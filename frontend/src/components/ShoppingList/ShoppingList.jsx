@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
  */
 
 export default function ShoppingList() {
-  const { list } = useList();
+  const { list, total } = useList();
 
   return (
     <section className="mt-4">
@@ -31,6 +31,10 @@ export default function ShoppingList() {
         ) : (
           list.map((item) => <ItemCard key={item.name} item={item} />)
         )}
+      </div>
+
+      <div className="mt-3 px-4">
+        <div className="text-sm text-gray-600">Total: <span className="font-semibold">₹{total.toFixed(2)}</span></div>
       </div>
     </section>
   );

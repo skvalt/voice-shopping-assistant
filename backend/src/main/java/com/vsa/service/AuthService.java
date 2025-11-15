@@ -44,6 +44,10 @@ public class AuthService {
 
         userRepository.save(user);
     }
+    public User getProfileByUsername(String username) {
+    return userRepository.findByUsername(username).orElse(null);
+}
+
 
     public AuthResponse login(LoginRequest req) {
 

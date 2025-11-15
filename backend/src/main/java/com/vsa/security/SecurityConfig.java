@@ -6,15 +6,18 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Security config — exposes JwtFilter as a bean so Spring can inject it.
- */
+import java.util.List;
+
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -27,9 +30,6 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    /**
-     * Expose JwtFilter as a Spring bean so it can be injected and reused.
-     */
     @Bean
     public JwtFilter jwtFilter() {
         return new JwtFilter(jwtProvider, userDetailsService);
@@ -39,26 +39,61 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // allow swagger and docs
+
+                        // PUBLIC ENDPOINTS
                         .requestMatchers(
-                                "/api/auth/**", "/api/voice/**",
+                                "/api/auth/**",
+                                "/api/voice/**",
+                                "/api/nlp/**",
+
+                                // suggestions public
+                                "/api/suggestions",
+                                "/api/suggestions/**",
+
+                                // product search & listing public
+                                "/api/products",
+                                "/api/products/",
+                                "/api/products/**",
+
+                                // Swagger docs
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui/index.html"
                         ).permitAll()
-                        // allow auth endpoints
-                        .requestMatchers("/api/auth/**", "/api/nlp/**" ).permitAll()
-                        // everything else needs auth
+
+                        // Preflight OPTIONS allowed
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Everything else = requires JWT
                         .anyRequest().authenticated()
                 );
 
-        // use the bean method above
+        // Add JWT filter BEFORE Auth filter
         http.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowedOrigins(List.of(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 
     @Bean
@@ -67,7 +102,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+            throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }

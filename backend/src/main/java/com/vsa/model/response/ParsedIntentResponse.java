@@ -22,7 +22,8 @@ public class ParsedIntentResponse {
     @AllArgsConstructor
     @Builder
     public static class ProductMatch {
-        private String productId;
+        // IMPORTANT: must match frontend 'id' field
+        private String id;
         private String name;
         private String brand;
         private String category;

@@ -10,7 +10,7 @@ import { useList } from "../../contexts/ListContext";
  */
 
 export default function ItemCard({ item }) {
-  const { removeItem } = useList();
+  const { removeItem, updateQty } = useList();
 
   return (
     <div className="flex items-center justify-between p-4">
@@ -24,7 +24,7 @@ export default function ItemCard({ item }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <QuantityControl name={item.name} qty={item.qty || 1} />
+        <QuantityControl name={item.name} qty={item.qty ?? item.quantity ?? 1} onChange={(newQty) => updateQty(item.name, newQty)} />
 
         <button
           onClick={() => removeItem(item.name)}

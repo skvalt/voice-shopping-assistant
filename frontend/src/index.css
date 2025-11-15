@@ -1,2 +1,7 @@
-/* Forward to real app styles */
-@import "./src/styles/index.css";
+html, body {
+  scroll-behavior: smooth;
+}
+
+.dark {
+  color-scheme: dark;
+}

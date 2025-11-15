@@ -21,21 +21,35 @@ public class SuggestionController {
         this.suggestionService = suggestionService;
     }
 
-    // Get generic suggestions for a user (userId optional) - returns list of products
+    /**
+     * MAIN: Personalized or generic product suggestions.
+     * If userId provided → personalized suggestions.
+     * Otherwise → fallback random 10 products (handled inside service).
+     */
     @GetMapping
-    public ResponseEntity<List<Product>> getSuggestions(@RequestParam(required = false) String userId) {
+    public ResponseEntity<List<Product>> getSuggestions(
+            @RequestParam(required = false) String userId
+    ) {
         return ResponseEntity.ok(suggestionService.suggest(userId));
     }
 
-    // Get category-specific suggestions
+    /**
+     * Get suggestions within a specific category.
+     */
     @GetMapping("/category/{category}")
-    public ResponseEntity<List<Product>> suggestionsByCategory(@PathVariable String category) {
+    public ResponseEntity<List<Product>> suggestionsByCategory(
+            @PathVariable String category
+    ) {
         return ResponseEntity.ok(suggestionService.suggestByCategory(category));
     }
 
-    // For testing: accept a parsed intent and return suggested substitutes
+    /**
+     * Suggest substitutes based on parsed voice intent.
+     */
     @PostMapping("/substitutes")
-    public ResponseEntity<List<Product>> substitutes(@RequestBody ParsedIntentResponse parsed) {
+    public ResponseEntity<List<Product>> substitutes(
+            @RequestBody ParsedIntentResponse parsed
+    ) {
         return ResponseEntity.ok(suggestionService.suggestSubstitutes(parsed));
     }
 }

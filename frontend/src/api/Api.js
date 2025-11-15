@@ -44,6 +44,7 @@ async function request(path, method = "GET", body = null, includeAuth = true) {
     throw new Error(msg);
   }
 
+  if (res.status === 204) return null;
   return res.json();
 }
 
@@ -73,6 +74,10 @@ const Auth = {
 
     if (data.token) setToken(data.token);
     return data;
+  },
+
+  getProfile: async () => {
+    return await request("/api/auth/me", "GET", null, true);
   },
 
   logout: () => {
@@ -142,17 +147,35 @@ const Products = {
 };
 
 //--------------------------------------------------------
+// CART ENDPOINTS  (MISSING IN YOUR EXPORT FIXED)
+//--------------------------------------------------------
+const Cart = {
+  get: async (userId) => {
+    return await request(`/api/cart?userId=${encodeURIComponent(userId)}`, "GET");
+  },
+
+  add: async (item) => {
+    return await request(`/api/cart`, "POST", item);
+  },
+
+  updateQty: async (id, quantity) => {
+    return await request(`/api/cart/${id}`, "PATCH", { quantity });
+  },
+
+  remove: async (id) => {
+    return await request(`/api/cart/${id}`, "DELETE");
+  }
+};
+
+//--------------------------------------------------------
 // LOCAL LANGUAGE DETECTOR + BASIC TRANSLATOR
 //--------------------------------------------------------
-
-// Unicode ranges for major Indian languages
 const hindiChars = /[\u0900-\u097F]/;
 const tamilChars = /[\u0B80-\u0BFF]/;
 const teluguChars = /[\u0C00-\u0C7F]/;
 const kannadaChars = /[\u0C80-\u0CFF]/;
 const malayalamChars = /[\u0D00-\u0D7F]/;
 
-// Basic Hindi dictionary
 const smallHindiToEnglish = {
   "ek": "one",
   "do": "two",
@@ -172,45 +195,35 @@ const smallHindiToEnglish = {
 
 const Translate = {
   async toEnglish(text) {
+    if (!text) return { text: "", detectedLang: "en" };
+
     const lower = text.toLowerCase();
 
-    // Script-based language detection
-    if (hindiChars.test(text)) {
-      return { text, detectedLang: "hi" };
-    }
-    if (tamilChars.test(text)) {
-      return { text, detectedLang: "ta" };
-    }
-    if (teluguChars.test(text)) {
-      return { text, detectedLang: "te" };
-    }
-    if (kannadaChars.test(text)) {
-      return { text, detectedLang: "kn" };
-    }
-    if (malayalamChars.test(text)) {
-      return { text, detectedLang: "ml" };
-    }
+    if (hindiChars.test(text)) return { text, detectedLang: "hi" };
+    if (tamilChars.test(text)) return { text, detectedLang: "ta" };
+    if (teluguChars.test(text)) return { text, detectedLang: "te" };
+    if (kannadaChars.test(text)) return { text, detectedLang: "kn" };
+    if (malayalamChars.test(text)) return { text, detectedLang: "ml" };
 
-    // Rule-based Hindi → English conversion
-    let words = lower.split(" ");
-    let mapped = words.map((w) => smallHindiToEnglish[w] || w);
-    let converted = mapped.join(" ");
+    const words = lower.split(" ");
+    const mapped = words.map((w) => smallHindiToEnglish[w] || w);
 
     return {
-      text: converted,
+      text: mapped.join(" "),
       detectedLang: "en-or-hi"
     };
   }
 };
 
 //--------------------------------------------------------
-// EXPORT FINAL API OBJECT
+// EXPORT FINAL API OBJECT — FIXED
 //--------------------------------------------------------
 const Api = {
   Auth,
   Voice,
   Products,
   Suggestions,
+  Cart,       // ← YOU MISSED THIS EARLIER (error cause)
   Translate
 };
 

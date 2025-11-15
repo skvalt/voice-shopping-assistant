@@ -11,4 +11,8 @@ public class UpdateItemRequest {
     private String productName;
     private Integer quantity;
     private String category;
+
+    // Added missing fields
+    private String unit;
+    private Double price;
 }

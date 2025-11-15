@@ -1,40 +1,23 @@
 import { useState } from "react";
 import { useAuth } from "./useAuth";
 
-/**
- * useAuthForm
- * -----------------------------------------
- * Handles:
- *  - username/password for login
- *  - username/email/password for register
- *  - form state
- *  - local + auth errors
- */
-
 export default function useAuthForm(type = "login") {
   const { login, register, authError, setAuthError } = useAuth();
 
-  // unified form state
   const [form, setForm] = useState({
-    username: "",   // used for login + register
-    email: "",      // used only for register
+    username: "",
+    email: "",
     password: "",
   });
 
   const [loading, setLoading] = useState(false);
   const [localError, setLocalError] = useState(null);
 
-  // update form fields
   function updateField(field, value) {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }
 
-  // -----------------------------------------
-  // LOGIN (username + password)
-  // -----------------------------------------
+  // LOGIN
   async function handleLogin() {
     setLocalError(null);
     setAuthError(null);
@@ -44,13 +27,10 @@ export default function useAuthForm(type = "login") {
       return false;
     }
 
-    const ok = await login(form.username, form.password);
-    return ok;
+    return await login(form.username, form.password);
   }
 
-  // -----------------------------------------
-  // REGISTER (username + email + password)
-  // -----------------------------------------
+  // REGISTER
   async function handleRegister() {
     setLocalError(null);
     setAuthError(null);

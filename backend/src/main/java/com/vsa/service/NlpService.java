@@ -16,10 +16,23 @@ public class NlpService {
 
     private final ProductRepository productRepository;
 
+    private static final Set<String> NUMBER_WORDS = Set.of(
+            "one","two","three","four","five",
+            "six","seven","eight","nine","ten",
+            "1","2","3","4","5","6","7","8","9","10"
+    );
+
+    private static final Map<String, Integer> WORD_NUMBERS = Map.ofEntries(
+            Map.entry("one",1), Map.entry("two",2), Map.entry("three",3),
+            Map.entry("four",4), Map.entry("five",5), Map.entry("six",6),
+            Map.entry("seven",7), Map.entry("eight",8), Map.entry("nine",9),
+            Map.entry("ten",10)
+    );
+
     // Minimal English-only keyword intent map (fast)
     private final Map<String, String> keywordIntentMap = createKeywordIntentMap();
 
-private Map<String, String> createKeywordIntentMap() {
+    private Map<String, String> createKeywordIntentMap() {
     Map<String, String> m = new HashMap<>();
 
     m.put("add", "add_item");
@@ -29,6 +42,10 @@ private Map<String, String> createKeywordIntentMap() {
     m.put("remove", "remove_item");
     m.put("delete", "remove_item");
     m.put("discard", "remove_item");
+
+    m.put("update", "update_quantity");
+    m.put("change", "update_quantity");
+    m.put("set", "update_quantity");
 
     m.put("find", "search_item");
     m.put("search", "search_item");
@@ -51,12 +68,10 @@ private Map<String, String> createKeywordIntentMap() {
         ParsedIntentResponse out = new ParsedIntentResponse();
         out.setRawText(original);
 
-        // Intent detection (keyword-first)
+        // Intent
         String intent = detectIntentByKeywords(original);
         double intentScore = intent != null ? 1.0 : 0.0;
-        if (intent == null) {
-            intent = "unknown";
-        }
+        if (intent == null) intent = "unknown";
 
         out.setIntent(intent);
         out.setIntentScore(intentScore);
@@ -70,7 +85,7 @@ private Map<String, String> createKeywordIntentMap() {
         String price = parsePrice(original);
         if (price != null) entities.put("price_range", price);
 
-        // Product guess (fuzzy on English product data)
+        // Product detection (fixed)
         String productGuess = guessProduct(original);
         if (productGuess != null) entities.put("product", productGuess);
 
@@ -92,6 +107,7 @@ private Map<String, String> createKeywordIntentMap() {
         return null;
     }
 
+    // ************** FIXED PRODUCT GUESSING **************
     private String guessProduct(String text) {
         if (text == null || text.isBlank()) return null;
 
@@ -99,15 +115,20 @@ private Map<String, String> createKeywordIntentMap() {
                 .map(String::trim)
                 .filter(t -> t.length() > 1)
                 .filter(t -> !isGarbageToken(t))
+                .filter(t -> !NUMBER_WORDS.contains(t.toLowerCase()))   // NEW: ignore number words
                 .collect(Collectors.toList());
+
+        if (tokens.isEmpty()) return null;
 
         List<Product> all = productRepository.findAll();
         LevenshteinDistance ld = LevenshteinDistance.getDefaultInstance();
+
         double bestScore = 0.0;
         String bestToken = null;
 
         for (String token : tokens) {
             String lowerToken = token.toLowerCase();
+
             for (Product p : all) {
 
                 if (p.getName() != null && p.getName().toLowerCase().contains(lowerToken)) {
@@ -132,23 +153,21 @@ private Map<String, String> createKeywordIntentMap() {
             }
         }
 
-        return bestScore >= 0.40 ? bestToken : null;
+        return bestScore >= 0.45 ? bestToken : null;
     }
 
     private boolean isGarbageToken(String t) {
+        Set<String> junk = Set.of(
+                "add", "put", "insert",
+                "remove", "delete", "discard",
+                "find", "search", "show",
+                "suggest", "filter",
+                "in", "on", "to", "my", "the", "a",
+                "for", "of", "and", "list"
+        );
 
-    Set<String> junk = Set.of(
-        "add", "put", "insert",
-        "remove", "delete", "discard",
-        "find", "search", "show",
-        "suggest", "filter",
-
-        "in", "on", "to", "my", "the", "a", "for", "of", "and", "list"
-    );
-
-    return junk.contains(t.toLowerCase());
-}
-
+        return junk.contains(t.toLowerCase());
+    }
 
     private double similarity(String a, String b, LevenshteinDistance ld) {
         if (a == null || b == null || a.isEmpty() || b.isEmpty()) return 0.0;
@@ -218,11 +237,22 @@ private Map<String, String> createKeywordIntentMap() {
                 .collect(Collectors.toList());
     }
 
+    // *************** FIXED QUANTITY EXTRACTION ***************
     private String parseQuantity(String text) {
         if (text == null) return null;
-        Matcher m = Pattern.compile("(\\d+)\\s*(kg|g|l|ml|liters|liter|ltr|litre)",
-                Pattern.CASE_INSENSITIVE).matcher(text);
-        return m.find() ? m.group(0) : null;
+        String lower = text.toLowerCase();
+
+        Matcher m = Pattern.compile("(\\d+)\\s*(kg|g|l|ml|liters|liter|ltr|litre)?").matcher(lower);
+        if (m.find()) return m.group(1);
+
+        // word numbers
+        for (var e : WORD_NUMBERS.entrySet()) {
+            if (lower.contains(e.getKey())) {
+                return String.valueOf(e.getValue());
+            }
+        }
+
+        return null;
     }
 
     private String parsePrice(String text) {

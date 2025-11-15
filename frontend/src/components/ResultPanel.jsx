@@ -1,14 +1,12 @@
 import React from "react";
+import { useList } from "../contexts/ListContext";
 
 /**
  * ResultPanel
- * ---------------------------------------------------------
  * Shows:
  *  - Recognized speech
  *  - NLP intent + score
- *  - Top matched product
- *  - Loading state
- *  - Apply result feedback
+ *  - List of matches (select one) + Add button
  */
 
 export default function ResultPanel({
@@ -17,10 +15,16 @@ export default function ResultPanel({
   isLoading,
   error,
   lastRaw,
+  confirmAction
 }) {
+  const { addOrUpdateItem } = useList();
+
+  if (!result && !recognized && !lastRaw) {
+    return null;
+  }
+
   return (
     <section className="mt-6">
-
       {/* Recognized Speech */}
       <div className="rounded-lg border p-3 bg-white">
         <div className="text-xs text-gray-500">Recognized Speech</div>
@@ -49,7 +53,6 @@ export default function ResultPanel({
       {/* NLP Result */}
       {result && !isLoading && !error && (
         <div className="mt-3 p-4 rounded-lg bg-gray-50 border">
-
           {/* Intent */}
           <div>
             <div className="text-xs text-gray-500">Intent</div>
@@ -63,34 +66,65 @@ export default function ResultPanel({
             </div>
           </div>
 
-          {/* Best match */}
+          {/* Matches list */}
           <div className="mt-3">
-            <div className="text-xs text-gray-500">Best Match</div>
+            <div className="text-xs text-gray-500">Matches</div>
 
             {result.matches?.length > 0 ? (
-              <div className="mt-2 bg-white p-3 rounded-md border">
-                <div className="text-sm font-semibold">
-                  {result.matches[0].name}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {result.matches[0].brand || "Generic"} •{" "}
-                  {result.matches[0].category || "Unknown"}
-                </div>
-                <div className="text-sm text-indigo-600 mt-1">
-                  ₹{result.matches[0].price ?? "—"}
-                </div>
+              <div className="mt-2 space-y-2">
+                {result.matches.map((m, idx) => (
+                  <div key={m.id ?? m.name ?? idx} className="bg-white p-3 rounded-md border flex justify-between items-center">
+                    <div>
+                      <div className="text-sm font-semibold truncate">{m.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {m.brand || "Generic"} • {m.category || "Unknown"}
+                      </div>
+                      <div className="text-sm text-indigo-600 mt-1">₹{m.price ?? "—"}</div>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-2">
+                      <button
+                        onClick={() => {
+                          // Add this specific match to list via confirmAction
+                          confirmAction(result, m);
+                        }}
+                        className="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md"
+                      >
+                        Add
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          // Quick add locally without hitting backend (optional)
+                          addOrUpdateItem({ name: m.name, quantity: 1, price: m.price, category: m.category });
+                        }}
+                        className="text-xs text-gray-500 underline"
+                      >
+                        Quick add (local)
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
-              <div className="mt-2 text-sm text-gray-500">
-                No product matched.
-              </div>
+              <div className="mt-2 text-sm text-gray-500">No product matched.</div>
             )}
           </div>
+
+          {/* Confirm whole parsed object (fallback) */}
+          {result.matches?.length > 0 && (
+            <button
+              onClick={() => confirmAction(result)}
+              className="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg active:scale-95"
+            >
+              Add top match(s)
+            </button>
+          )}
 
           {/* Applied Action Feedback */}
           {result.applied && (
             <div className="mt-3 p-3 rounded-md bg-green-50 border border-green-100 text-sm text-green-700">
-              Updated: {result.applied.message || "Action applied"}
+              Action applied.
             </div>
           )}
         </div>

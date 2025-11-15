@@ -21,6 +21,9 @@ public class ItemController {
         this.itemService = itemService;
     }
 
+    // --------------------------------------------------------
+    // CREATE ITEM
+    // --------------------------------------------------------
     @PostMapping
     public ResponseEntity<Item> createItem(@Valid @RequestBody AddItemRequest req,
                                            Authentication authentication) {
@@ -32,21 +35,31 @@ public class ItemController {
         return ResponseEntity.status(201).body(saved);
     }
 
+    // --------------------------------------------------------
+    // GET ITEMS FOR USER
+    // --------------------------------------------------------
     @GetMapping
-    public ResponseEntity<List<Item>> listItems(@RequestParam(required = false) String userId,
-                                                Authentication authentication) {
+    public ResponseEntity<List<Item>> listItems(
+            @RequestParam(required = false) String userId,
+            Authentication authentication) {
 
         Optional<String> username = Optional.ofNullable(authentication)
                 .map(Authentication::getName);
 
-        List<Item> items = itemService.getItemsForUser(userId);
+        String resolvedUserId = username.isPresent() ? null : userId;
+
+        List<Item> items = itemService.getItemsForUser(resolvedUserId);
         return ResponseEntity.ok(items);
     }
 
+    // --------------------------------------------------------
+    // UPDATE FULL ITEM
+    // --------------------------------------------------------
     @PutMapping("/{id}")
-    public ResponseEntity<Item> updateItem(@PathVariable String id,
-                                           @Valid @RequestBody AddItemRequest req,
-                                           Authentication authentication) {
+    public ResponseEntity<Item> updateItem(
+            @PathVariable String id,
+            @Valid @RequestBody AddItemRequest req,
+            Authentication authentication) {
 
         Optional<String> username = Optional.ofNullable(authentication)
                 .map(Authentication::getName);
@@ -55,36 +68,28 @@ public class ItemController {
         return ResponseEntity.ok(updated);
     }
 
+    // --------------------------------------------------------
+    // DELETE
+    // --------------------------------------------------------
     @DeleteMapping("/{id}")
-public ResponseEntity<Void> deleteItem(@PathVariable String id,
-                                       Authentication authentication) {
-    // keep your naming convention
-    Optional<String> username = Optional.ofNullable(authentication).map(Authentication::getName);
+    public ResponseEntity<Void> deleteItem(@PathVariable String id,
+                                           Authentication authentication) {
 
-    // quick debug log so you can see who's calling and what id
-    System.out.println("DELETE request by username=" + username.orElse("ANONYMOUS") + " for itemId=" + id);
+        Optional<String> username = Optional.ofNullable(authentication)
+                .map(Authentication::getName);
 
-    try {
         itemService.deleteItem(id, username);
         return ResponseEntity.noContent().build();
-    } catch (IllegalArgumentException ex) {
-        // ownership or auth check failed in service
-        System.out.println("DELETE forbidden: " + ex.getMessage());
-        return ResponseEntity.status(403).build();
-    } catch (com.vsa.exceptions.ItemNotFoundException ex) {
-        return ResponseEntity.notFound().build();
-    } catch (Exception ex) {
-        // unexpected error, log it and return 500
-        ex.printStackTrace();
-        return ResponseEntity.status(500).build();
     }
-}
 
-
+    // --------------------------------------------------------
+    // CHECK/UNCHECK
+    // --------------------------------------------------------
     @PostMapping("/{id}/check")
-    public ResponseEntity<Item> checkItem(@PathVariable String id,
-                                          @RequestParam boolean checked,
-                                          Authentication authentication) {
+    public ResponseEntity<Item> checkItem(
+            @PathVariable String id,
+            @RequestParam boolean checked,
+            Authentication authentication) {
 
         Optional<String> username = Optional.ofNullable(authentication)
                 .map(Authentication::getName);

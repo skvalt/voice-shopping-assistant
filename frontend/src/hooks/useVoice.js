@@ -6,7 +6,7 @@ export default function useVoice() {
   const { applyBackendAction } = useList();
 
   const recognitionRef = useRef(null);
-  const hasStartedRef = useRef(false);  // prevents false restarts
+  const hasStartedRef = useRef(false);
 
   const [listening, setListening] = useState(false);
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -34,9 +34,9 @@ export default function useVoice() {
     };
   }
 
-  // ------------------------------------------------------
-  // INIT RECOGNIZER
-  // ------------------------------------------------------
+  // ----------------------------------------------------------
+  // INIT SpeechRecognizer
+  // ----------------------------------------------------------
   useEffect(() => {
     const SR =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -48,16 +48,16 @@ export default function useVoice() {
 
     const rec = new SR();
     rec.lang = "en-IN";
-    rec.continuous = true;
+
+    // Single-shot speech
+    rec.continuous = false;
     rec.interimResults = false;
 
-    // Debug log
     rec.onstart = () => {
       console.log("🎤 Recognition started");
       hasStartedRef.current = true;
     };
 
-    // Fired when browser detects speech
     rec.onresult = async (event) => {
       const text =
         event.results[event.results.length - 1][0].transcript;
@@ -70,6 +70,11 @@ export default function useVoice() {
       await processSpeech(text);
     };
 
+    rec.onspeechend = () => {
+      console.log("🔇 User stopped speaking");
+      stopListening();
+    };
+
     rec.onerror = (e) => {
       console.log("❌ Speech error:", e.error);
 
@@ -79,33 +84,24 @@ export default function useVoice() {
         return;
       }
 
-      // Chrome fake error when start() called twice — ignore
-      if (e.error === "network") return;
-
       setError("Speech error: " + e.error);
       stopListening();
     };
 
     rec.onend = () => {
       console.log("⛔ Recognition ended");
-
-      // restart only if user is still listening
-      if (listening && hasStartedRef.current) {
-        console.log("🔄 Restarting recognition...");
-        try {
-          rec.start();
-        } catch (_) {}
-      }
     };
 
     recognitionRef.current = rec;
 
-    return () => rec.stop();
+    return () => {
+      try { rec.stop(); } catch (_) {}
+    };
   }, [listening]);
 
-  // ------------------------------------------------------
+  // ----------------------------------------------------------
   // PROCESS SPEECH
-  // ------------------------------------------------------
+  // ----------------------------------------------------------
   async function processSpeech(text) {
     setIsLoading(true);
     setError(null);
@@ -119,6 +115,22 @@ export default function useVoice() {
       const parsed = await Api.Voice.parse(english);
       console.log("🧠 Parsed:", parsed);
 
+      // Ensure matches are normalized to { id, name, brand, category, price, score }
+      if (parsed && Array.isArray(parsed.matches)) {
+        parsed.matches = parsed.matches.map((m) => {
+          // tolerate both productId and id
+          const id = m.id ?? m.productId ?? m.productId;
+          return {
+            id,
+            name: m.name || m.product || "",
+            brand: m.brand || m.manufacturer || m.brand,
+            category: m.category || m.cat,
+            price: m.price ?? m.pricePerUnit ?? null,
+            score: m.score ?? m.similarity ?? 0
+          };
+        });
+      }
+
       setResult(parsed);
     } catch (err) {
       console.error("Parse Error:", err);
@@ -128,32 +140,89 @@ export default function useVoice() {
     setIsLoading(false);
   }
 
-  // ------------------------------------------------------
-  // CONFIRM BACKEND ACTION
-  // ------------------------------------------------------
-  async function confirmAction(payload) {
+  // ----------------------------------------------------------
+  // CONFIRM ACTION / APPLY
+  // ----------------------------------------------------------
+  async function confirmAction(payload = null, chosenMatch = null) {
     setIsLoading(true);
+    setError(null);
 
     try {
-      const res = await Api.Voice.apply(payload);
+      const body = payload || result;
+      if (!body) throw new Error("Nothing to apply");
 
+      // Build a clean payload that matches backend expectations
+      const cleanPayload = {
+        intent: body.intent,
+        entities: body.entities ?? {},
+        matches: []
+      };
+
+      // If user chose a specific match, send only that
+      if (chosenMatch) {
+        cleanPayload.matches = [
+          {
+            id: chosenMatch.id,
+            name: chosenMatch.name,
+            brand: chosenMatch.brand,
+            category: chosenMatch.category,
+            price: chosenMatch.price,
+            score: chosenMatch.score ?? 1.0
+          }
+        ];
+      } else if (Array.isArray(body.matches)) {
+        cleanPayload.matches = body.matches.map((m) => ({
+          id: m.id,
+          name: m.name,
+          brand: m.brand,
+          category: m.category,
+          price: m.price,
+          score: m.score ?? 0
+        }));
+      }
+
+      const res = await Api.Voice.apply(cleanPayload);
       console.log("🔁 Apply Response:", res);
 
-      applyBackendAction(res);
+      // Interpret backend response and call applyBackendAction accordingly
+      // If backend returned an array => many items added
+      if (Array.isArray(res)) {
+        res.forEach((it) => applyBackendAction(it));
+      } else if (res && res.removed) {
+        // backend: { removed: item }
+        applyBackendAction(res.removed);
+      } else if (res && res.cleared !== undefined) {
+        applyBackendAction({ type: "clear" });
+      } else if (res && res.undone) {
+        // best-effort: undo payload
+        // Let backend already mutated DB; frontend tries to reflect
+        // For simplicity, if undone is an item removal, remove it
+        if (res.undone instanceof Object && res.undone.name) {
+          applyBackendAction({ action: "remove", name: res.undone.name });
+        }
+      } else {
+        // single item object or action
+        applyBackendAction(res);
+      }
 
-      setResult((prev) =>
-        prev ? { ...prev, applied: res } : { applied: res }
-      );
+      // Mark result as applied
+      setResult((prev) => (prev ? { ...prev, applied: res } : { applied: res }));
+
+      // hide matches after successful add/update
+      // small delay so UI shows feedback
+      setTimeout(() => setResult(null), 800);
+
     } catch (err) {
-      setError("Action failed: " + err.message);
+      console.error("Apply Error:", err);
+      setError("Action failed: " + (err.message || err));
     }
 
     setIsLoading(false);
   }
 
-  // ------------------------------------------------------
-  // START LISTENING
-  // ------------------------------------------------------
+  // ----------------------------------------------------------
+  // START / STOP
+  // ----------------------------------------------------------
   function startListening() {
     if (!recognitionRef.current) return;
 
@@ -174,11 +243,9 @@ export default function useVoice() {
     }
   }
 
-  // ------------------------------------------------------
-  // STOP LISTENING
-  // ------------------------------------------------------
   function stopListening() {
     if (!recognitionRef.current) return;
+
     console.log("⏹ stopListening()");
 
     setListening(false);
@@ -197,6 +264,7 @@ export default function useVoice() {
     error,
     lastRaw,
     overlayOpen,
+
     startListening,
     stopListening,
     confirmAction,

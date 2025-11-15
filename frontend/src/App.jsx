@@ -4,52 +4,41 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Home from "./pages/Home";
 import ProductSearch from "./pages/ProductSearch";
+import CartPage from "./pages/CartPage";
 
 import PrivateRoute from "./components/PrivateRoute";
 import Toast from "./components/common/Toast";
 
-/**
- * App layout + routing
- * Mobile-first UI with centered content on desktop.
- */
+import AppLayout from "./components/layout/AppLayout";
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-white flex justify-center">
-      <div className="w-full max-w-md px-4 py-4">
-        
-        {/* ROUTES */}
-        <Routes>
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
 
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+      <Routes>
 
-          {/* Protected routes */}
-          <Route
-            path="/home"
-            element={
-              <PrivateRoute>
-                <Home />
-              </PrivateRoute>
-            }
-          />
+        {/* PUBLIC ROUTES */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/search"
-            element={
-              <PrivateRoute>
-                <ProductSearch />
-              </PrivateRoute>
-            }
-          />
+        {/* PRIVATE ROUTES INSIDE LAYOUT */}
+        <Route
+          element={
+            <PrivateRoute>
+              <AppLayout />
+            </PrivateRoute>
+          }
+        >
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<ProductSearch />} />
+          <Route path="/cart" element={<CartPage />} />
+        </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+        {/* FALLBACK */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
 
-        {/* Global Toast */}
-        <Toast />
-      </div>
+      <Toast />
     </div>
   );
 }
