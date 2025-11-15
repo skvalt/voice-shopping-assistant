@@ -1,8 +1,3 @@
-# Voice Shopping Assistant
-
-Initial repo for Voice Shopping Assistant — Spring Boot backend + React frontend.
-This repo will hold the backend (backend/) and frontend (frontend/) projects.
-
-## Next steps
-- Scaffold backend (Spring Boot) in backend/
-- Scaffold frontend (React / Vite) in frontend/
+The Voice Shopping Assistant is a complete stack, mobile-first application which grants us the facility to manage the shopping lists via a natural and local language voice commands. It is built on the concepts of Spring boot and MongoDB and provides JWT-authentication along with Rest Folks, creating items, updating, and removing them, categorizing, and retrieving items, and endpoints dedicated to voice-command processing, making sense of the intent, isolating items, processing quantities and normalizing multilingual queries, i.e. the processing of Hindi keywords. It also has a product-suggestion tool that gives substitutes, price-based suggestions, and contextual suggestions and CORS is set to React and has layer-structured structures to manage NLP logic, item workflows, and data storage.
+The Frontend is a Vite single-page app using React and built with the TailwindCSS, Live speech-to-text chat integration with the Web Speech API, Authentication and signature workflows powered by JWT, real-time item management in a list (responsive linking), suggestive panels, search and filter (operated by Tailing interactions), categorizing items into groups, and resilient mobile vibe support through React Context as the state management platform.
+Upon completion, this system will become a smart, voice-activated shopping assistant capable of understanding natural speech, automatic actions, handling secure and user-specific lists and making individual suggestions that are shown via a user-friendly and clean style of interface.
