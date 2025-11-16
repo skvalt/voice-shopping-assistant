@@ -254,7 +254,6 @@ export default function ProductSearch() {
               className="p-2 rounded-lg bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600"
             >
               <option value="all">All</option>
-              <option value="fruits">Fruits</option>
               <option value="vegetables">Vegetables</option>
               <option value="snacks">Snacks</option>
               <option value="personal care">Personal Care</option>

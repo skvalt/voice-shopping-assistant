@@ -169,7 +169,7 @@ export default function Home() {
 
       {/* CATEGORIES */}
       <div className="flex gap-3 overflow-x-auto mt-6 no-scrollbar">
-        {["Fruits", "Vegetables", "Dairy", "Bakery", "Snacks", "Personal Care"].map(
+        {["Vegetables", "Dairy", "Bakery", "Snacks", "Personal Care"].map(
           (c) => (
             <button
               key={c}
