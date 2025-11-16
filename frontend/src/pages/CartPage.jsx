@@ -32,11 +32,9 @@ export default function CartPage() {
 
       <div className="mt-6 space-y-4">
         {cart?.items?.map((i) => {
-          const cartItemId = i._id || i.id || i.productId;
-
           return (
             <div
-              key={cartItemId}
+              key={i.id || i._id}
               className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow"
             >
               <div className="flex justify-between">
@@ -53,7 +51,7 @@ export default function CartPage() {
                 </div>
 
                 <button
-                  onClick={() => remove(cartItemId)}
+                  onClick={() => remove(i)}
                   className="text-red-500 hover:text-red-700"
                 >
                   <Trash size={20} />
@@ -63,7 +61,7 @@ export default function CartPage() {
               <div className="flex items-center gap-3 mt-3">
                 <button
                   className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg"
-                  onClick={() => decrement(cartItemId)}
+                  onClick={() => decrement(i)}
                 >
                   <Minus size={18} />
                 </button>
@@ -74,7 +72,7 @@ export default function CartPage() {
 
                 <button
                   className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg"
-                  onClick={() => increment(cartItemId)}
+                  onClick={() => increment(i)}
                 >
                   <Plus size={18} />
                 </button>

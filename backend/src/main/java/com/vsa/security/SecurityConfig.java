@@ -44,35 +44,24 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
 
-                        // PUBLIC ENDPOINTS
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/api/voice/**",
                                 "/api/nlp/**",
-
-                                // suggestions public
                                 "/api/suggestions",
                                 "/api/suggestions/**",
-
-                                // product search & listing public
                                 "/api/products",
-                                "/api/products/",
                                 "/api/products/**",
-
-                                // Swagger docs
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui/index.html"
                         ).permitAll()
 
-                        // Preflight OPTIONS allowed
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Everything else = requires JWT
                         .anyRequest().authenticated()
                 );
 
-        // Add JWT filter BEFORE Auth filter
         http.addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -86,7 +75,12 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://127.0.0.1:5173"
         ));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // PATCH added here
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
+        ));
+
         config.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         config.setAllowCredentials(true);
 

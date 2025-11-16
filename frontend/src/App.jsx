@@ -17,11 +17,17 @@ export default function App() {
 
       <Routes>
 
-        {/* PUBLIC ROUTES */}
+        {/* PUBLIC ROUTES ALWAYS UNDER LAYOUT */}
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<ProductSearch />} />
+        </Route>
+
+        {/* AUTH ROUTES */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* PRIVATE ROUTES INSIDE LAYOUT */}
+        {/* PROTECTED ROUTES */}
         <Route
           element={
             <PrivateRoute>
@@ -29,12 +35,10 @@ export default function App() {
             </PrivateRoute>
           }
         >
-          <Route path="/" element={<Home />} />
-          <Route path="/search" element={<ProductSearch />} />
           <Route path="/cart" element={<CartPage />} />
         </Route>
 
-        {/* FALLBACK */}
+        {/* DEFAULT FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

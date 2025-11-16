@@ -5,7 +5,7 @@ export default function Footer() {
     <div className="mt-16 pb-24 text-center text-gray-400 text-sm">
       <div className="flex justify-center gap-4 mb-2">
         <a
-          href="https://linkedin.com"
+          href="https://www.linkedin.com/in/shivamkarn/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-gray-400 hover:text-indigo-400 transition"
@@ -14,7 +14,7 @@ export default function Footer() {
         </a>
 
         <a
-          href="https://github.com"
+          href="https://github.com/skvalt/voice-shopping-assistant"
           target="_blank"
           rel="noopener noreferrer"
           className="text-gray-400 hover:text-indigo-400 transition"
@@ -23,7 +23,7 @@ export default function Footer() {
         </a>
 
         <a
-          href="https://instagram.com"
+          href="https://www.instagram.com/sk.ok05/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-gray-400 hover:text-indigo-400 transition"

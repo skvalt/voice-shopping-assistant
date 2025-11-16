@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [authError, setAuthError] = useState(null);
 
   // --------------------------------------------------
-  // RESTORE USER IF TOKEN EXISTS
+  // RESTORE USER ON PAGE LOAD
   // --------------------------------------------------
   useEffect(() => {
     restoreUser();
@@ -23,15 +23,10 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      // If backend DOES NOT have /me, fallback to stored user
-      const profile = await Api.Auth.getProfile?.();
-
-      if (profile) {
-        setUser(profile);
-      } else {
-        setUser({ username: "local-user" });
-      }
-    } catch {
+      const profile = await Api.Auth.getProfile();
+      setUser(profile);
+    } catch (err) {
+      // Do NOT redirect or clear UI – Home should stay public
       clearToken();
       setUser(null);
     }
@@ -43,31 +38,19 @@ export function AuthProvider({ children }) {
   // LOGIN
   // --------------------------------------------------
   async function login(username, password) {
-  try {
-    const res = await Api.Auth.login(username, password);
+    try {
+      const res = await Api.Auth.login(username, password);
+      if (res?.token) setToken(res.token);
 
-    if (res?.token) setToken(res.token);
-
-    // Now fetch full user profile (must return id / _id)
-    const profile = await Api.Auth.getProfile?.();
-
-    if (profile) {
+      const profile = await Api.Auth.getProfile();
       setUser(profile);
-      localStorage.setItem("vsa_user", JSON.stringify(profile));
-    } else {
-      // fallback: username-only (not ideal but safe)
-      setUser({ username });
-      localStorage.setItem("vsa_user", JSON.stringify({ username }));
+      setAuthError(null);
+      return true;
+    } catch {
+      setAuthError("Invalid username or password");
+      return false;
     }
-
-    setAuthError(null);
-    return true;
-  } catch (err) {
-    setAuthError("Invalid username or password");
-    return false;
   }
-}
-
 
   // --------------------------------------------------
   // REGISTER
@@ -75,10 +58,10 @@ export function AuthProvider({ children }) {
   async function register(username, email, password) {
     try {
       const res = await Api.Auth.register(username, email, password);
-
       if (res?.token) setToken(res.token);
-      if (res?.user) setUser(res.user);
-      else setUser({ username, email });
+
+      const profile = await Api.Auth.getProfile();
+      setUser(profile);
 
       setAuthError(null);
       return true;
@@ -106,7 +89,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
-        isLoggedIn: !!user,
+        isLoggedIn: !!user
       }}
     >
       {children}
@@ -114,9 +97,6 @@ export function AuthProvider({ children }) {
   );
 }
 
-// --------------------------------------------------
-// HOOK EXPORT (required by AppLayout, Home etc.)
-// --------------------------------------------------
 export function useAuth() {
   return useContext(AuthContext);
 }
