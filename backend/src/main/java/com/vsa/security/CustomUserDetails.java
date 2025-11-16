@@ -8,10 +8,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Simple wrapper around your User entity for Spring Security.
- * Keeps things minimal (no roles/authorities complex logic yet).
- */
+//Simple wrapper around User entity for Spring Security.
+
 @Getter
 public class CustomUserDetails implements UserDetails {
 

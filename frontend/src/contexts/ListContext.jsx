@@ -52,7 +52,7 @@ export function ListProvider({ children }) {
   function applyBackendAction(actionData) {
     if (!actionData) return;
 
-    // Case: backend returns a full Item object
+    // backend returns a full Item object
     if (actionData.name && (actionData.quantity != null || actionData.qty != null)) {
       addOrUpdateItemFromBackend({
         name: actionData.name,
@@ -63,13 +63,13 @@ export function ListProvider({ children }) {
       return;
     }
 
-    // Case: backend returns top-level removed item
+    // backend returns top-level removed item
     if (actionData.removed && actionData.removed.name) {
       removeItemByBackendName(actionData.removed.name);
       return;
     }
 
-    // Case: small action objects { action, name, qty, price }
+    // small action objects 
     const { action, name, qty, price } = actionData;
     if (action === "add") {
       addOrUpdateItemFromBackend({ name, quantity: qty ?? 1, price });
@@ -80,7 +80,7 @@ export function ListProvider({ children }) {
     } else if (action.type === "clear") {
       setList([]);
     } else {
-      // fallback: if object has name only, add with qty 1
+      
       if (actionData.name) {
         addOrUpdateItemFromBackend({ name: actionData.name, quantity: actionData.quantity ?? 1, price: actionData.price });
       }

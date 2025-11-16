@@ -1,8 +1,6 @@
 import { useList } from "../../contexts/ListContext";
 
-/**
- * + / – button component for quantity handling
- */
+
 
 export default function QuantityControl({ name, qty }) {
   const { updateQty } = useList();

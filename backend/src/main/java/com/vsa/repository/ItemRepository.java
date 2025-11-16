@@ -10,7 +10,6 @@ public interface ItemRepository extends MongoRepository<Item, String> {
     List<Item> findByUserId(String userId);
     List<Item> findByUserIdAndCategory(String userId, String category);
 
-    // used by services earlier
     Optional<Item> findFirstByUserIdAndNameIgnoreCase(String userId, String name);
     List<Item> findByNameIgnoreCase(String name);
 

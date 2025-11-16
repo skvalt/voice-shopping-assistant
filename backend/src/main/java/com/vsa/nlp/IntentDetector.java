@@ -1,9 +1,6 @@
 package com.vsa.nlp;
 
-/**
- * Very small rule-based intent detector.
- * Returns a string representing user intent based on keywords in text.
- */
+//Returns a string representing user intent based on keywords in text.
 public class IntentDetector {
 
     public String detect(String text) {

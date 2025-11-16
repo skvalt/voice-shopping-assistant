@@ -21,9 +21,8 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    // --------------------------------------------------------
+
     // CREATE ITEM
-    // --------------------------------------------------------
     @PostMapping
     public ResponseEntity<Item> createItem(@Valid @RequestBody AddItemRequest req,
                                            Authentication authentication) {
@@ -35,9 +34,8 @@ public class ItemController {
         return ResponseEntity.status(201).body(saved);
     }
 
-    // --------------------------------------------------------
+
     // GET ITEMS FOR USER
-    // --------------------------------------------------------
     @GetMapping
     public ResponseEntity<List<Item>> listItems(
             @RequestParam(required = false) String userId,
@@ -52,9 +50,7 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-    // --------------------------------------------------------
     // UPDATE FULL ITEM
-    // --------------------------------------------------------
     @PutMapping("/{id}")
     public ResponseEntity<Item> updateItem(
             @PathVariable String id,
@@ -68,9 +64,8 @@ public class ItemController {
         return ResponseEntity.ok(updated);
     }
 
-    // --------------------------------------------------------
+
     // DELETE
-    // --------------------------------------------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteItem(@PathVariable String id,
                                            Authentication authentication) {
@@ -82,9 +77,7 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
 
-    // --------------------------------------------------------
     // CHECK/UNCHECK
-    // --------------------------------------------------------
     @PostMapping("/{id}/check")
     public ResponseEntity<Item> checkItem(
             @PathVariable String id,

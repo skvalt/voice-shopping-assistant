@@ -3,9 +3,7 @@ package com.vsa.security;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-/**
- * small helper to get authenticated username / principal
- */
+//small helper to get authenticated username
 public final class SecurityUtil {
 
     private SecurityUtil() {}

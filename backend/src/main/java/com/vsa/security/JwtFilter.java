@@ -13,9 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-/**
- * reads Bearer token from Authorization header, validates it, loads user details and populates SecurityContext
- */
+//reads Bearer token from Authorization header, validates it, loads user details and populates SecurityContext
+
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;

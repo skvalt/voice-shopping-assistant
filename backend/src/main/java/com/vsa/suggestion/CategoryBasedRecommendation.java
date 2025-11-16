@@ -5,9 +5,8 @@ import com.vsa.repository.ProductRepository;
 
 import java.util.List;
 
-/**
- * Suggest items by category popularity.
- */
+//Suggest items by category popularity.
+
 public class CategoryBasedRecommendation implements RecommendationStrategy {
 
     private final ProductRepository repo;

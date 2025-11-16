@@ -9,9 +9,8 @@ import com.vsa.security.JwtProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-/**
- * Handles registration and login logic, including BCrypt hashing and JWT generation.
- */
+//Handles registration and login logic, including BCrypt hashing and JWT generation.
+
 @Service
 public class AuthService {
 

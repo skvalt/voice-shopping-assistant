@@ -1,13 +1,7 @@
 import React from "react";
 import { useList } from "../contexts/ListContext";
 
-/**
- * ResultPanel
- * Shows:
- *  - Recognized speech
- *  - NLP intent + score
- *  - List of matches (select one) + Add button
- */
+
 
 export default function ResultPanel({
   recognized,
@@ -85,7 +79,7 @@ export default function ResultPanel({
                     <div className="flex flex-col items-end gap-2">
                       <button
                         onClick={() => {
-                          // Add this specific match to list via confirmAction
+                          
                           confirmAction(result, m);
                         }}
                         className="px-3 py-1 bg-indigo-600 text-white text-sm rounded-md"
@@ -95,7 +89,7 @@ export default function ResultPanel({
 
                       <button
                         onClick={() => {
-                          // Quick add locally without hitting backend (optional)
+                          
                           addOrUpdateItem({ name: m.name, quantity: 1, price: m.price, category: m.category });
                         }}
                         className="text-xs text-gray-500 underline"
@@ -111,7 +105,7 @@ export default function ResultPanel({
             )}
           </div>
 
-          {/* Confirm whole parsed object (fallback) */}
+          {/* Confirm whole parsed object */}
           {result.matches?.length > 0 && (
             <button
               onClick={() => confirmAction(result)}

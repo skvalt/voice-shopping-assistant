@@ -18,9 +18,9 @@ public class Product {
 
     private String name;
     private String category;
-    private String brand;           // optional but helps NLP
-    private String unit;            // e.g. "1L", "500g"
+    private String brand;           
+    private String unit;            
     private Double price;
 
-    private List<String> tags;      // synonyms, alternate names
+    private List<String> tags;      
 }

@@ -9,18 +9,15 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Optional;
 
-/**
- * Very small in-memory undo helper.
- * Stores minimal action info per user (or null for anonymous).
- */
+//Stores minimal action info per user (or null for anonymous).
 @Service
 public class UndoService {
 
     public static class UndoAction {
         public enum Type { ADD, DELETE, UPDATE }
         public Type type;
-        public Item before; // previous state (for update/delete)
-        public Item after;  // new state (for add/update)
+        public Item before; 
+        public Item after;  
     }
 
     private final Map<String, Deque<UndoAction>> stacks = new ConcurrentHashMap<>();
@@ -44,7 +41,7 @@ public class UndoService {
     }
 
     public void pushUpdate(String userKey, Item beforeOrAfter) {
-        // for simplicity we store the state after update (caller may set before if needed)
+
         UndoAction a = new UndoAction();
         a.type = UndoAction.Type.UPDATE;
         a.after = beforeOrAfter;
@@ -57,9 +54,8 @@ public class UndoService {
         return Optional.of(d.pop());
     }
 
-    /**
-     * Provided for VoiceController to pop and interpret; we return object raw
-     */
+    //Provided for VoiceController to pop and interpret; we return object raw
+
     public Optional<Object> popLast(String userKey) {
         Optional<UndoAction> oa = popLastRaw(userKey);
         if (oa.isEmpty()) return Optional.empty();

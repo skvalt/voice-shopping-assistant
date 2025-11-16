@@ -29,7 +29,7 @@ public class NlpService {
             Map.entry("ten",10)
     );
 
-    // Minimal English-only keyword intent map (fast)
+    // Minimal English-only keyword intent map 
     private final Map<String, String> keywordIntentMap = createKeywordIntentMap();
 
     private Map<String, String> createKeywordIntentMap() {
@@ -107,7 +107,6 @@ public class NlpService {
         return null;
     }
 
-    // ************** FIXED PRODUCT GUESSING **************
     private String guessProduct(String text) {
         if (text == null || text.isBlank()) return null;
 
@@ -237,7 +236,6 @@ public class NlpService {
                 .collect(Collectors.toList());
     }
 
-    // *************** FIXED QUANTITY EXTRACTION ***************
     private String parseQuantity(String text) {
         if (text == null) return null;
         String lower = text.toLowerCase();

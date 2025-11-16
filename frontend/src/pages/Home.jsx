@@ -18,7 +18,6 @@ export default function Home() {
 
   const navigate = useNavigate();
 
-  // resolve userId from possible shapes
   const userId = user?._id || user?.id;
 
 
@@ -26,7 +25,7 @@ export default function Home() {
     if (!userId) return;
     loadRecommendations();
     loadCart(userId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+ 
   }, [userId]);
 
   async function loadRecommendations() {
@@ -40,9 +39,8 @@ export default function Home() {
     setLoadingReco(false);
   }
 
-  // ---------------------------------------
-  // NEW VOICE LOGIC (parse → add to cart)
-  // ---------------------------------------
+
+
   function voiceSearch() {
     if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
       alert("Voice recognition not supported in this browser.");

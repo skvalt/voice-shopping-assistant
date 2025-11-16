@@ -24,9 +24,8 @@ public class ItemService {
         this.userRepository = userRepository;
     }
 
-    // --------------------------------------------------------
     // ADD ITEM
-    // --------------------------------------------------------
+
     public Item addItem(AddItemRequest req, Optional<String> authUsername) {
         String resolvedUserId = resolveUserId(req.getUserId(), authUsername);
 
@@ -45,35 +44,32 @@ public class ItemService {
         return itemRepository.save(item);
     }
 
-    // --------------------------------------------------------
     // Generic save (used by controllers that manipulate Item objects directly)
-    // --------------------------------------------------------
+
     public Item save(Item item) {
         item.setUpdatedAt(Instant.now());
         return itemRepository.save(item);
     }
 
-    // --------------------------------------------------------
+
     // FIND by name helper (tries per-user first, then global)
-    // Returns Optional<Item> (first matching)
-    // --------------------------------------------------------
+
     public Optional<Item> findByName(String productName, String userId) {
-        // try per-user first if userId present
+
         if (userId != null) {
             Optional<Item> perUser = itemRepository.findFirstByUserIdAndNameIgnoreCase(userId, productName);
             if (perUser.isPresent()) return perUser;
         }
 
-        // fallback to global by name list (return first)
+
         List<Item> byName = itemRepository.findByNameIgnoreCase(productName);
         if (!byName.isEmpty()) return Optional.of(byName.get(0));
 
         return Optional.empty();
     }
 
-    // --------------------------------------------------------
     // GET ITEMS FOR USER
-    // --------------------------------------------------------
+
     public List<Item> getItemsForUser(String userId) {
         if (userId == null) {
             return itemRepository.findAll(); // if null, return all (you can change later)
@@ -81,9 +77,8 @@ public class ItemService {
         return itemRepository.findByUserId(userId);
     }
 
-    // --------------------------------------------------------
     // REMOVE BY NAME
-    // --------------------------------------------------------
+
     public Optional<Item> removeItemByName(String productName,
                                            String userId,
                                            Optional<String> authUsername) {
@@ -110,9 +105,8 @@ public class ItemService {
         return Optional.empty();
     }
 
-    // --------------------------------------------------------
     // UPDATE QUANTITY BY NAME
-    // --------------------------------------------------------
+
     public Optional<Item> updateQuantityByName(String productName,
                                                int quantity,
                                                String userId,
@@ -140,9 +134,8 @@ public class ItemService {
         return Optional.empty();
     }
 
-    // --------------------------------------------------------
     // CLEAR LIST FOR USER
-    // --------------------------------------------------------
+
     public List<Item> clearItemsForUser(String userId) {
         if (userId == null) return List.of();
 
@@ -154,9 +147,8 @@ public class ItemService {
         return items;
     }
 
-    // --------------------------------------------------------
     // UPDATE FULL ITEM
-    // --------------------------------------------------------
+
     public Item updateItem(String id, AddItemRequest req, Optional<String> authUsername) {
         Item existing = itemRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(id));
@@ -179,9 +171,8 @@ public class ItemService {
         return itemRepository.save(existing);
     }
 
-    // --------------------------------------------------------
     // DELETE
-    // --------------------------------------------------------
+
     public void deleteItem(String id, Optional<String> authUsername) {
         Item existing = itemRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(id));
@@ -196,9 +187,8 @@ public class ItemService {
         itemRepository.deleteById(id);
     }
 
-    // --------------------------------------------------------
     // CHECK / UNCHECK
-    // --------------------------------------------------------
+
     public Item toggleCheck(String id, boolean checked, Optional<String> authUsername) {
         Item existing = itemRepository.findById(id)
                 .orElseThrow(() -> new ItemNotFoundException(id));
@@ -215,9 +205,8 @@ public class ItemService {
         return itemRepository.save(existing);
     }
 
-    // --------------------------------------------------------
     // RESOLVE USER ID
-    // --------------------------------------------------------
+
     private String resolveUserId(String userId, Optional<String> authUsername) {
         if (authUsername.isPresent()) {
             User u = userRepository.findByUsername(authUsername.get()).orElse(null);

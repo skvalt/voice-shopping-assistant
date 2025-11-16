@@ -41,12 +41,11 @@ public class CartService {
                 });
     }
 
-    /** OLD CartController depends on this exact signature */
+
     public Cart addToCart(CartItem item) {
 
         Cart cart = getOrCreateCart(item.getUserId());
 
-        // Try to enrich from product DB
         if (item.getProductId() != null) {
             productRepository.findById(item.getProductId()).ifPresent(p -> {
                 if (item.getName() == null) item.setName(p.getName());
@@ -56,7 +55,7 @@ public class CartService {
             });
         }
 
-        // Normalize matching: prefer productId match, else name (case-insensitive)
+        // Normalize matching: prefer productId match, else name 
         CartItem existing = cart.getItems().stream()
                 .filter(ci ->
                         (item.getProductId() != null && item.getProductId().equals(ci.getProductId())) ||
@@ -83,14 +82,11 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    /**
-     * Update quantity of an item identified by embedded item id (itemId).
-     * Returns the updated Cart.
-     */
+    //Update quantity of an item identified by embedded item id (itemId).
+
     public Cart updateQuantityByItemId(String itemId, int qty) {
         if (itemId == null) throw new IllegalArgumentException("itemId required");
 
-        // find cart that contains this item
         Cart cart = cartRepository.findByItemId(itemId)
                 .orElseThrow(() -> new RuntimeException("Cart not found for item"));
 
@@ -110,9 +106,8 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    /**
-     * Remove an item by its embedded item id and return the updated Cart.
-     */
+    //Remove an item by its embedded item id and return the updated Cart.
+
     public Cart removeItemByItemId(String itemId) {
         if (itemId == null) throw new IllegalArgumentException("itemId required");
 
@@ -127,7 +122,6 @@ public class CartService {
         return cartRepository.save(cart);
     }
 
-    // legacy unsupported methods kept but throw with clear message
     @Deprecated
     public CartItem updateQuantity(String id, int qty) {
         throw new UnsupportedOperationException("Use updateQuantityByItemId(itemId, qty) instead");

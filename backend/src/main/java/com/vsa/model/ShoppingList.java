@@ -18,12 +18,10 @@ public class ShoppingList {
     @Id
     private String id;
 
-    // owner user id
     private String userId;
 
     private String name;
 
-    // store only item IDs
     private List<String> itemIds = new ArrayList<>();
 
     private Instant createdAt = Instant.now();

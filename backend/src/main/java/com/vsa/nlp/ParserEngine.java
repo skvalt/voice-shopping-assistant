@@ -4,10 +4,7 @@ import com.vsa.model.response.ParsedIntentResponse;
 
 import java.util.Map;
 
-/**
- * Runs intent detection + entity extraction.
- * Produces ParsedIntentResponse used by the Controller.
- */
+//Produces ParsedIntentResponse used by the Controller
 public class ParserEngine {
 
     private final IntentDetector intentDetector = new IntentDetector();

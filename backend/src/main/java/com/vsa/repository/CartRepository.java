@@ -9,7 +9,6 @@ import java.util.Optional;
 public interface CartRepository extends MongoRepository<Cart, String> {
     Optional<Cart> findByUserId(String userId);
 
-    // find a cart that contains an item with a given id
     @Query("{ 'items._id': ?0 }")
 Optional<Cart> findByItemId(String itemId);
 

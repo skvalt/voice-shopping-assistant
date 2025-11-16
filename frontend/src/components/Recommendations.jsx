@@ -56,7 +56,7 @@ export default function Recommendations() {
   }
 
   if (!items || items.length === 0) {
-    return null; // nothing to show
+    return null; 
   }
 
   return (

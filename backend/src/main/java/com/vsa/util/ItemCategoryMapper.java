@@ -3,10 +3,8 @@ package com.vsa.util;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Simple category mapping from product name keywords to categories.
- * Extend with more terms; consider external taxonomy later.
- */
+//Simple category mapping from product name keywords to categories.
+
 public final class ItemCategoryMapper {
 
     private static final Map<String, String> MAP = Map.ofEntries(

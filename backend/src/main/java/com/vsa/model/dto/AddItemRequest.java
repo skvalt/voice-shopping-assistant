@@ -8,9 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 @Data
 public class AddItemRequest {
 
-    /**
-     * Optional for now - if call is authenticated we will use authenticated user id instead.
-     */
     private String userId;
 
     @NotBlank

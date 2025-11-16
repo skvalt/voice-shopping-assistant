@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.Instant;
 import java.util.Map;
 
-/**
- * Generic exception handling: return JSON {message, timestamp}
- */
+//Generic exception handling: return JSON {message, timestamp}
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

@@ -76,7 +76,6 @@ public class SecurityConfig {
                 "http://127.0.0.1:5173"
         ));
 
-        // PATCH added here
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"
         ));

@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-/**
- * Toast Notification
- * Auto hides after 3 seconds.
- *
- * To trigger a toast:
- *   window.dispatchEvent(new CustomEvent("toast", { detail: "Your message" }));
- */
+
 
 export default function Toast() {
   const [msg, setMsg] = useState("");

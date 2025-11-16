@@ -90,7 +90,7 @@ public class VoiceController {
         }
     }
 
-    // -------------------- ADD --------------------
+    // add item
     private ResponseEntity<?> handleAddItem(String userId,
                                             Map<String, String> entities,
                                             List<Map<String, Object>> matches) {
@@ -127,7 +127,7 @@ public class VoiceController {
         return ResponseEntity.ok(updated);
     }
 
-    // -------------------- REMOVE --------------------
+    // remove item
     private ResponseEntity<?> handleRemoveItem(String userId,
                                                Map<String, String> entities,
                                                List<Map<String, Object>> matches) {
@@ -151,7 +151,7 @@ public class VoiceController {
         }
     }
 
-    // -------------------- UPDATE --------------------
+    // update quantity
     private ResponseEntity<?> handleUpdateQty(String userId,
                                               Map<String, String> entities,
                                               List<Map<String, Object>> matches) {

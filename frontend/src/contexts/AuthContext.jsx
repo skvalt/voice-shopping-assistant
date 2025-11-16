@@ -8,9 +8,9 @@ export function AuthProvider({ children }) {
   const [loadingUser, setLoadingUser] = useState(true);
   const [authError, setAuthError] = useState(null);
 
-  // --------------------------------------------------
+
   // RESTORE USER ON PAGE LOAD
-  // --------------------------------------------------
+
   useEffect(() => {
     restoreUser();
   }, []);
@@ -34,9 +34,8 @@ export function AuthProvider({ children }) {
     setLoadingUser(false);
   }
 
-  // --------------------------------------------------
   // LOGIN
-  // --------------------------------------------------
+
   async function login(username, password) {
     try {
       const res = await Api.Auth.login(username, password);
@@ -52,9 +51,9 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // --------------------------------------------------
+
   // REGISTER
-  // --------------------------------------------------
+
   async function register(username, email, password) {
     try {
       const res = await Api.Auth.register(username, email, password);
@@ -71,9 +70,9 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // --------------------------------------------------
+ 
   // LOGOUT
-  // --------------------------------------------------
+
   function logout() {
     clearToken();
     setUser(null);

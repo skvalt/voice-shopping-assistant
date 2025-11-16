@@ -2,10 +2,8 @@ import ItemCard from "./ItemCard";
 import { useList } from "../../contexts/ListContext";
 import { Link } from "react-router-dom";
 
-/**
- * Main shopping list container.
- * Shows current list items + navigation to search.
- */
+//Main shopping list container. Shows current list items + navigation to search.
+
 
 export default function ShoppingList() {
   const { list, total } = useList();

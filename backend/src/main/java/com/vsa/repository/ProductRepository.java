@@ -13,10 +13,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
 
     Optional<Product> findByNameIgnoreCase(String name);
 
-    // remove the broken popularity method (no such field in model)
-    // List<Product> findTop10ByOrderByPopularityDesc();
-
-    // price is Double in your Product.java, so use double not BigDecimal
     List<Product> findByPriceBetween(double min, double max);
 
     // regex search for product name

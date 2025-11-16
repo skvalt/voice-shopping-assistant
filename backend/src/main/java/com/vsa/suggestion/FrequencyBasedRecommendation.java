@@ -45,7 +45,6 @@ public class FrequencyBasedRecommendation implements RecommendationStrategy {
             );
         }
 
-        // dedupe products
         LinkedHashMap<String, Product> dedup = new LinkedHashMap<>();
         for (Product p : results) dedup.putIfAbsent(p.getId(), p);
 

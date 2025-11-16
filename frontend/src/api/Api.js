@@ -1,12 +1,7 @@
-/**
- * API WRAPPER FOR VOICE SHOPPING ASSISTANT FRONTEND
- */
-
 const BASE_URL = "http://localhost:8080";
 
-//--------------------------------------------------------
 // TOKEN HELPERS
-//--------------------------------------------------------
+
 export function getToken() {
   return localStorage.getItem("vsa_token");
 }
@@ -19,9 +14,9 @@ export function clearToken() {
   localStorage.removeItem("vsa_token");
 }
 
-//--------------------------------------------------------
+
 // UNIFIED REQUEST WRAPPER
-//--------------------------------------------------------
+
 async function request(path, method = "GET", body = null, includeAuth = true) {
   const headers = { "Content-Type": "application/json" };
 
@@ -48,9 +43,9 @@ async function request(path, method = "GET", body = null, includeAuth = true) {
   return res.json();
 }
 
-//--------------------------------------------------------
+
 // AUTH ENDPOINTS
-//--------------------------------------------------------
+
 const Auth = {
   login: async (username, password) => {
     const data = await request(
@@ -85,9 +80,8 @@ const Auth = {
   }
 };
 
-//--------------------------------------------------------
 // VOICE ENDPOINTS
-//--------------------------------------------------------
+
 const Voice = {
   parse: async (englishText) => {
     return await request("/api/voice/parse", "POST", { text: englishText });
@@ -98,9 +92,8 @@ const Voice = {
   }
 };
 
-//--------------------------------------------------------
 // SUGGESTIONS ENDPOINTS
-//--------------------------------------------------------
+
 const Suggestions = {
   getSuggestions: async (userId = null) => {
     const url = userId
@@ -118,9 +111,8 @@ const Suggestions = {
   }
 };
 
-//--------------------------------------------------------
 // PRODUCTS ENDPOINTS
-//--------------------------------------------------------
+
 const Products = {
   search: async (query) => {
     return await request(
@@ -146,9 +138,8 @@ const Products = {
   }
 };
 
-//--------------------------------------------------------
 // CART ENDPOINTS  (MISSING IN YOUR EXPORT FIXED)
-//--------------------------------------------------------
+
 const Cart = {
   get: async (userId) => {
     return await request(`/api/cart?userId=${encodeURIComponent(userId)}`, "GET");
@@ -167,9 +158,8 @@ const Cart = {
   }
 };
 
-//--------------------------------------------------------
 // LOCAL LANGUAGE DETECTOR + BASIC TRANSLATOR
-//--------------------------------------------------------
+
 const hindiChars = /[\u0900-\u097F]/;
 const tamilChars = /[\u0B80-\u0BFF]/;
 const teluguChars = /[\u0C00-\u0C7F]/;
@@ -215,15 +205,15 @@ const Translate = {
   }
 };
 
-//--------------------------------------------------------
+
 // EXPORT FINAL API OBJECT — FIXED
-//--------------------------------------------------------
+
 const Api = {
   Auth,
   Voice,
   Products,
   Suggestions,
-  Cart,       // ← YOU MISSED THIS EARLIER (error cause)
+  Cart,       
   Translate
 };
 

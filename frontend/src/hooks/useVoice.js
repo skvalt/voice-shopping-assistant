@@ -18,7 +18,7 @@ export default function useVoice() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // iOS block
+
   const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (isIOS) {
     return {
@@ -34,9 +34,8 @@ export default function useVoice() {
     };
   }
 
-  // ----------------------------------------------------------
-  // INIT SpeechRecognizer
-  // ----------------------------------------------------------
+  // SpeechRecognizer
+
   useEffect(() => {
     const SR =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -99,9 +98,9 @@ export default function useVoice() {
     };
   }, [listening]);
 
-  // ----------------------------------------------------------
+ 
   // PROCESS SPEECH
-  // ----------------------------------------------------------
+
   async function processSpeech(text) {
     setIsLoading(true);
     setError(null);
@@ -115,10 +114,9 @@ export default function useVoice() {
       const parsed = await Api.Voice.parse(english);
       console.log("🧠 Parsed:", parsed);
 
-      // Ensure matches are normalized to { id, name, brand, category, price, score }
       if (parsed && Array.isArray(parsed.matches)) {
         parsed.matches = parsed.matches.map((m) => {
-          // tolerate both productId and id
+         
           const id = m.id ?? m.productId ?? m.productId;
           return {
             id,
@@ -140,9 +138,7 @@ export default function useVoice() {
     setIsLoading(false);
   }
 
-  // ----------------------------------------------------------
-  // CONFIRM ACTION / APPLY
-  // ----------------------------------------------------------
+  // CONFIRM ACTION
   async function confirmAction(payload = null, chosenMatch = null) {
     setIsLoading(true);
     setError(null);
@@ -184,8 +180,7 @@ export default function useVoice() {
       const res = await Api.Voice.apply(cleanPayload);
       console.log("🔁 Apply Response:", res);
 
-      // Interpret backend response and call applyBackendAction accordingly
-      // If backend returned an array => many items added
+
       if (Array.isArray(res)) {
         res.forEach((it) => applyBackendAction(it));
       } else if (res && res.removed) {
@@ -194,22 +189,18 @@ export default function useVoice() {
       } else if (res && res.cleared !== undefined) {
         applyBackendAction({ type: "clear" });
       } else if (res && res.undone) {
-        // best-effort: undo payload
-        // Let backend already mutated DB; frontend tries to reflect
-        // For simplicity, if undone is an item removal, remove it
+ 
         if (res.undone instanceof Object && res.undone.name) {
           applyBackendAction({ action: "remove", name: res.undone.name });
         }
       } else {
-        // single item object or action
+
         applyBackendAction(res);
       }
 
-      // Mark result as applied
       setResult((prev) => (prev ? { ...prev, applied: res } : { applied: res }));
 
-      // hide matches after successful add/update
-      // small delay so UI shows feedback
+
       setTimeout(() => setResult(null), 800);
 
     } catch (err) {
@@ -220,9 +211,8 @@ export default function useVoice() {
     setIsLoading(false);
   }
 
-  // ----------------------------------------------------------
   // START / STOP
-  // ----------------------------------------------------------
+
   function startListening() {
     if (!recognitionRef.current) return;
 

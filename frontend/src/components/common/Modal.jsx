@@ -1,10 +1,4 @@
-/**
- * Modal Component
- * Usage:
- * <Modal open={open} onClose={() => setOpen(false)}>
- *    <div>Content</div>
- * </Modal>
- */
+
 
 export default function Modal({ open, onClose, children }) {
   if (!open) return null;

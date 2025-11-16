@@ -23,9 +23,9 @@ export function CartProvider({ children }) {
     setCart({ items, total: recalc(items) });
   }
 
-  // ----------------------------
-  // FIXED: increment using correct ID
-  // ----------------------------
+
+  //  increment using correct ID
+
   async function increment(item) {
     const itemId = item.id || item._id;
     const updated = await Api.Cart.updateQty(itemId, item.quantity + 1);
@@ -33,9 +33,9 @@ export function CartProvider({ children }) {
     setCart({ items, total: recalc(items) });
   }
 
-  // ----------------------------
-  // FIXED: decrement using correct ID
-  // ----------------------------
+
+  // decrement using correct ID
+
   async function decrement(item) {
     const itemId = item.id || item._id;
     const newQty = item.quantity - 1;
@@ -49,9 +49,9 @@ export function CartProvider({ children }) {
     setCart({ items, total: recalc(items) });
   }
 
-  // ----------------------------
-  // FIXED: remove using correct ID
-  // ----------------------------
+
+  // remove using correct ID
+
   async function remove(item) {
     const itemId = item.id || item._id;
     await Api.Cart.remove(itemId);

@@ -1,13 +1,7 @@
 import QuantityControl from "./QuantityControl";
 import { useList } from "../../contexts/ListContext";
 
-/**
- * Displays a single item:
- *  - name
- *  - brand (if available)
- *  - price
- *  - quantity controls
- */
+
 
 export default function ItemCard({ item }) {
   const { removeItem, updateQty } = useList();

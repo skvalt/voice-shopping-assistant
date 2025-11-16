@@ -11,7 +11,7 @@ import java.time.Instant;
 public class CartItem {
 
     @Id
-    private String id;         // <- crucial: unique id for the embedded item
+    private String id;         
 
     private String userId;
     private String productId;

@@ -2,9 +2,8 @@ package com.vsa.util;
 
 import java.text.Normalizer;
 
-/**
- * Basic normalization: lowercase, remove diacritics, collapse whitespace.
- */
+//Basic normalization: lowercase, remove diacritics, collapse whitespace.
+
 public final class TextNormalizer {
 
     public static String normalize(String input) {

@@ -4,14 +4,7 @@ import Api from "../api/Api";
 import { useCart } from "../contexts/CartContext";
 import { Mic } from "lucide-react";
 
-/**
- * ProductSearch — updated:
- * - reads ?category=... and ?voice=... from URL and auto-searches
- * - when category param present, calls /api/products/category/{category}
- * - when search query present, calls /api/products/search?query=
- * - voice input fills the input and triggers name-search
- * - add-to-cart includes userId
- */
+
 
 function useQuery() {
   const { search } = useLocation();
@@ -35,11 +28,9 @@ export default function ProductSearch() {
   const { addToCart } = useCart();
   const micRef = useRef(null);
 
-  // helper to get userId from Auth if available via cart context state
-  // We'll try to read user info from local storage token payload if needed, but simplest is to let addToCart be called with userId from caller.
-  const user = null; // keep as null here; addToCart should receive userId from caller where possible.
-
-  // Apply filters whenever results or filters change
+  
+  const user = null; // keep as null here
+  
   useEffect(() => {
     if (!results) {
       setFiltered(null);
@@ -55,7 +46,6 @@ export default function ProductSearch() {
     setFiltered(temp);
   }, [results, category, maxPrice]);
 
-  // If URL had category/voice params on mount, run search
   useEffect(() => {
     const cat = qparams.get("category");
     const voice = qparams.get("voice");
@@ -63,8 +53,8 @@ export default function ProductSearch() {
 
     if (cat) {
       setCategory(cat);
-      setQuery(cat); // show in input so user sees it
-      setTranscript(""); // don't show voice transcript for category click
+      setQuery(cat); 
+      setTranscript(""); 
       setTimeout(() => doSearch(cat, { isCategory: true }), 200);
       return;
     }
@@ -80,10 +70,10 @@ export default function ProductSearch() {
       setQuery(q);
       setTimeout(() => doSearch(q, { isCategory: false }), 150);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // run once on mount
+   
+  }, []); 
 
-  // Search function; options: { isCategory: true } to force category endpoint
+
   async function doSearch(custom, opts = { isCategory: false }) {
     const finalQuery = (custom ?? query ?? "").trim();
     if (!finalQuery) return;
@@ -91,7 +81,7 @@ export default function ProductSearch() {
     setFiltered(null);
     setResults(null);
 
-    // reflect in URL (non-intrusive)
+    
     const params = new URLSearchParams();
     if (category && category !== "all") params.set("category", category);
     if (!opts.isCategory) params.set("q", finalQuery);
@@ -100,7 +90,7 @@ export default function ProductSearch() {
     try {
       let data;
       if (opts.isCategory) {
-        // call category endpoint
+        
         data = await Api.Products.getByCategory(finalQuery);
       } else {
         data = await Api.Products.search(finalQuery);
@@ -127,7 +117,7 @@ export default function ProductSearch() {
     rec.interimResults = false;
     rec.start();
 
-    // UI hint
+   
     if (micRef.current) micRef.current.classList.add("animate-pulse");
 
     rec.onresult = (e) => {
@@ -146,10 +136,10 @@ export default function ProductSearch() {
     };
   }
 
-  // local add-to-cart helper (calls CartContext -> backend). Ensure userId included by caller.
+  
   async function handleAdd(p) {
     try {
-      // try to figure userId from local storage token if available (AuthContext recommended)
+      
       const stored = localStorage.getItem("vsa_user");
       let userId = null;
       if (stored) {

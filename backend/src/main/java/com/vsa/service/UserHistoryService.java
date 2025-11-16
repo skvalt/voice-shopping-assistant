@@ -16,14 +16,12 @@ public class UserHistoryService {
         this.historyRepository = historyRepository;
     }
 
-    /**
-     * Record that a user interacted with a product (add/update/remove). This increments count or creates entry.
-     */
+    //Record that a user interacted with a product (add/update/remove). This increments count or creates entry.
+
     public void record(String userId, String productId, String name) {
         if (userId == null || productId == null && (name == null || name.isBlank())) return;
 
-        // naive approach: append a new history record for simplicity and fast writes.
-        // suggestion engine can aggregate counts; if you prefer a single doc per product per user, we can upsert instead.
+        
         UserHistory h = UserHistory.builder()
                 .userId(userId)
                 .productId(productId)

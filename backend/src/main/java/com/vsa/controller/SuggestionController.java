@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Endpoints for suggestions (recommendations).
- */
+//Endpoints for suggestions (recommendations).
+
 @RestController
 @RequestMapping("/api/suggestions")
 public class SuggestionController {
@@ -21,11 +20,7 @@ public class SuggestionController {
         this.suggestionService = suggestionService;
     }
 
-    /**
-     * MAIN: Personalized or generic product suggestions.
-     * If userId provided → personalized suggestions.
-     * Otherwise → fallback random 10 products (handled inside service).
-     */
+    
     @GetMapping
     public ResponseEntity<List<Product>> getSuggestions(
             @RequestParam(required = false) String userId
@@ -33,9 +28,7 @@ public class SuggestionController {
         return ResponseEntity.ok(suggestionService.suggest(userId));
     }
 
-    /**
-     * Get suggestions within a specific category.
-     */
+    //Get suggestions within a specific category
     @GetMapping("/category/{category}")
     public ResponseEntity<List<Product>> suggestionsByCategory(
             @PathVariable String category
@@ -43,9 +36,7 @@ public class SuggestionController {
         return ResponseEntity.ok(suggestionService.suggestByCategory(category));
     }
 
-    /**
-     * Suggest substitutes based on parsed voice intent.
-     */
+    //Suggest substitutes based on parsed voice intent.
     @PostMapping("/substitutes")
     public ResponseEntity<List<Product>> substitutes(
             @RequestBody ParsedIntentResponse parsed
